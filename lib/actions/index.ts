@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache"; // new import for revalidation 
 import Product from "../models/product.model";
 import { connectToDB } from "../mongoose";
-import { scrapeAmazonProduct } from "../scraper";
+import { scrapeAmazonProduct } from "../scraper/scraperAmazon";
+import { scrapeBookingProduct } from "../scraper/scraperBookig";
 import { getAveragePrice, getHighestPrice, getLowestPrice } from "../utils";
 import { User } from "@/types";
 // import { generateEmailBody, sendEmail } from "../nodemailer";
@@ -14,7 +15,20 @@ export async function scrapeAndStoreProduct(productUrl: string) {
   try {
     connectToDB();
 
-    const scrapedProduct = await scrapeAmazonProduct(productUrl);
+    let scrapedProduct = null;
+
+    console.log("Received URL:", productUrl);
+
+
+    // Détecter l'origine de l'URL et appeler la fonction appropriée
+    if (productUrl.includes('amazon.fr')) {
+      scrapedProduct = await scrapeAmazonProduct(productUrl);
+    } else if (productUrl.includes('booking.com')) {
+      scrapedProduct = await scrapeBookingProduct(productUrl);
+    } else {
+      throw new Error('Unsupported URL. Only Amazon and Booking.com are supported.');
+    }
+
 
     if(!scrapedProduct) return;
 

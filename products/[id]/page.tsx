@@ -12,29 +12,8 @@ type Props = {
   params: { id: string }
 }
 
-// Composant pour afficher une galerie d'images
-const ProductGallery = ({ images }: { images: string[] }) => {
-  return (
-    <div className="gallery">
-      {images.map((src, index) => (
-        <div key={index} className="gallery-item">
-          <Image
-            src={src}
-            alt={`Product Image ${index + 1}`}
-            width={200}
-            height={200}
-            className="gallery-image"
-          />
-        </div>
-      ))}
-    </div>
-  );
-};
-
-
 const ProductDetails = async ({ params: { id } }: Props) => {
   const product: Product = await getProductById(id);
-  const images = Array.isArray(product.image) ? product.image : [product.image];
 
   if(!product) redirect('/')
 
@@ -44,20 +23,13 @@ const ProductDetails = async ({ params: { id } }: Props) => {
     <div className="product-container">
       <div className="flex gap-28 xl:flex-row flex-col">
         <div className="product-image">
-          <h1>ici</h1>
-          {images.length > 1 ? (
-          // Utilisation de la galerie si plusieurs images sont disponibles
-          <ProductGallery images={images} />
-        ) : (
-          // Affichage d'une seule image si aucune galerie n'est nécessaire
-          <Image
-            src={images[0]}
+          <Image 
+            src={product.image}
             alt={product.title}
-            width={200}
-            height={200}
-            className="product-card_img"
+            width={580}
+            height={400}
+            className="mx-auto"
           />
-        )}
         </div>
 
         <div className="flex-1 flex flex-col">

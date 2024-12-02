@@ -10,8 +10,10 @@ const isValidAmazonProductURL = (url: string) => {
 
     if(
       hostname.includes('amazon.com') || 
-      hostname.includes ('amazon.') || 
-      hostname.endsWith('amazon')
+      hostname.includes('amazon.') || 
+      hostname.endsWith('amazon') ||
+      hostname.includes('booking.com') || 
+      hostname.includes('booking.')
     ) {
       return true;
     }
@@ -31,7 +33,7 @@ const Searchbar = () => {
 
     const isValidLink = isValidAmazonProductURL(searchPrompt);
 
-    if(!isValidLink) return alert('Please provide a valid Amazon link')
+    if(!isValidLink) return alert('Please provide a valid Amazon or Booking link')
 
     try {
       setIsLoading(true);
