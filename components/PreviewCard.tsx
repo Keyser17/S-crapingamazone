@@ -1,8 +1,14 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import ProductGallery from './ProductGallery';
+import Link from "next/link";
+import Image from "next/image";
+import ProductGallery from "./ProductGallery";
 
-const PreviewCard = ({ product, images }: { product: any; images: string[] }) => {
+const PreviewCard = ({
+  product,
+  images,
+}: {
+  product: any;
+  images: string[];
+}) => {
   return (
     <Link href={`/products/${product._id}`} className="product-card">
       <div className="product-card_img-container">

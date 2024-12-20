@@ -1,9 +1,9 @@
 // "use server"
 
-import axios from 'axios';
-import * as cheerio from 'cheerio';
-import { extractCurrency, extractDescription, extractPrice } from '../utils';
-import { scrapeImagesFromPage } from '../utils';
+import axios from "axios";
+import * as cheerio from "cheerio";
+import { extractCurrency, extractDescription, extractPrice } from "../utils";
+import { scrapeImagesFromPage } from "../utils";
 
 export async function scrapeAmazonProduct(url: string) {
   if (!url) return;
@@ -19,7 +19,7 @@ export async function scrapeAmazonProduct(url: string) {
       username: `${username}-session-${session_id}`,
       password,
     },
-    host: 'brd.superproxy.io',
+    host: "brd.superproxy.io",
     port,
     rejectUnauthorized: false,
   };
@@ -30,38 +30,40 @@ export async function scrapeAmazonProduct(url: string) {
     const $ = cheerio.load(response.data);
 
     // Extraction du titre du produit
-    const title = $('#productTitle').text().trim();
-    
+    const title = $("#productTitle").text().trim();
+
     // Extraction des prix
     const currentPrice = extractPrice(
-      $('.priceToPay span.a-price-whole'),
-      $('.a.size.base.a-color-price'),
-      $('.a-button-selected .a-color-base')
+      $(".priceToPay span.a-price-whole"),
+      $(".a.size.base.a-color-price"),
+      $(".a-button-selected .a-color-base"),
     );
 
     const originalPrice = extractPrice(
-      $('#priceblock_ourprice'),
-      $('.a-price.a-text-price span.a-offscreen'),
-      $('#listPrice'),
-      $('#priceblock_dealprice'),
-      $('.a-size-base.a-color-price')
+      $("#priceblock_ourprice"),
+      $(".a-price.a-text-price span.a-offscreen"),
+      $("#listPrice"),
+      $("#priceblock_dealprice"),
+      $(".a-size-base.a-color-price"),
     );
 
     // Vérification de la disponibilité
-    const outOfStock = $('#availability span').text().trim().toLowerCase() === 'currently unavailable';
+    const outOfStock =
+      $("#availability span").text().trim().toLowerCase() ===
+      "currently unavailable";
 
     // Extraction des images via Cheerio
-    const images = 
-      $('#imgBlkFront').attr('data-a-dynamic-image') || 
-      $('#landingImage').attr('data-a-dynamic-image') ||
-      '{}';
+    const images =
+      $("#imgBlkFront").attr("data-a-dynamic-image") ||
+      $("#landingImage").attr("data-a-dynamic-image") ||
+      "{}";
 
     const imageUrls = Object.keys(JSON.parse(images));
 
     // Si les images via Cheerio sont insuffisantes, essayons avec Puppeteer
     if (imageUrls.length === 0) {
       console.log("No images found with Cheerio, trying Puppeteer...");
-      const imgSelector = '.plp-card-thumbnail img'; // Ajuster le sélecteur selon la page
+      const imgSelector = ".plp-card-thumbnail img"; // Ajuster le sélecteur selon la page
       const puppeteerImages = await scrapeImagesFromPage(url, imgSelector);
 
       if (puppeteerImages.length > 0) {
@@ -70,27 +72,27 @@ export async function scrapeAmazonProduct(url: string) {
     }
 
     // Extraction des autres informations
-    const currency = extractCurrency($('.a-price-symbol'));
-    let discountRate = $('.savingsPercentage').text().replace(/[-%]/g, "");
+    const currency = extractCurrency($(".a-price-symbol"));
+    let discountRate = $(".savingsPercentage").text().replace(/[-%]/g, "");
     discountRate = Number(discountRate); // Convertir la chaîne en nombre
     // Si discountRate est NaN, définir une valeur par défaut (par exemple 0)
     if (isNaN(discountRate)) {
-        discountRate = 0;
+      discountRate = 0;
     }
-    
+
     const description = extractDescription($);
 
     // Construction de l'objet des données
     const data = {
       url,
-      currency: currency || '$',
-      image: imageUrls, // Utilisation de la première image trouvée et pour voir tout utiliser imageUrls 
+      currency: currency || "$",
+      image: imageUrls, // Utilisation de la première image trouvée et pour voir tout utiliser imageUrls
       title,
       currentPrice: Number(currentPrice) || Number(originalPrice),
       originalPrice: Number(originalPrice) || Number(currentPrice),
       priceHistory: [],
       discountRate: Number(discountRate),
-      category: 'category', // À ajuster
+      category: "category", // À ajuster
       reviewsCount: 100, // Valeur fictive, à extraire si disponible
       stars: 4.5, // Valeur fictive, à extraire si disponible
       isOutOfStock: outOfStock,
@@ -101,7 +103,6 @@ export async function scrapeAmazonProduct(url: string) {
     };
 
     return data; // Affiche les données pour débogage
-
   } catch (error: any) {
     throw new Error(`Failed to scrape Amazon product: ${error.message}`);
   }

@@ -7,7 +7,6 @@ interface Props {
   product: Product;
 }
 
-
 // Composant pour afficher une galerie d'images
 const ProductGallery = ({ images }: { images: string[] }) => {
   return (

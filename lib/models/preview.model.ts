@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const previewSchema = new mongoose.Schema(
   {
@@ -34,12 +34,13 @@ const previewSchema = new mongoose.Schema(
     },
     priceSummary: {
       totalPrice: { type: Number, required: true }, // Prix total (ex : 172)
-      currency: { type: String, default: 'EUR' }, // Devise (ex : €)
+      currency: { type: String, default: "EUR" }, // Devise (ex : €)
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const Preview = mongoose.models.Preview || mongoose.model('Preview', previewSchema);
+const Preview =
+  mongoose.models.Preview || mongoose.model("Preview", previewSchema);
 
 export default Preview;

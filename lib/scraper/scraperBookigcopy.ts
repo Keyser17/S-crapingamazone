@@ -1,11 +1,11 @@
-import * as fs from 'fs';
-import * as cheerio from 'cheerio';
+import * as fs from "fs";
+import * as cheerio from "cheerio";
 
-const filePath = './lib/scraper/output.html';
+const filePath = "./lib/scraper/output.html";
 
 async function extractAllHotelData(): Promise<void> {
   try {
-    const html = fs.readFileSync(filePath, 'utf-8');
+    const html = fs.readFileSync(filePath, "utf-8");
     const $ = cheerio.load(html);
 
     // Extraire les données JSON
@@ -15,23 +15,27 @@ async function extractAllHotelData(): Promise<void> {
       try {
         hotelData = JSON.parse(scriptContent);
       } catch (error) {
-        console.error('Erreur lors du parsing JSON :', error);
+        console.error("Erreur lors du parsing JSON :", error);
       }
     }
 
     // Informations principales
-    const name = hotelData.name || $('h1.hotel-name-selector').text().trim();
-    const address = hotelData.address?.streetAddress || $('address.hotel-address').text().trim();
-    const locality = hotelData.address?.addressLocality || $('span.locality').text().trim();
-    const price = $('span.price-amount').text().trim() || 'Prix non disponible';
-    const reviews = $('span.review-score').text().trim() || 'Avis non disponible';
+    const name = hotelData.name || $("h1.hotel-name-selector").text().trim();
+    const address =
+      hotelData.address?.streetAddress ||
+      $("address.hotel-address").text().trim();
+    const locality =
+      hotelData.address?.addressLocality || $("span.locality").text().trim();
+    const price = $("span.price-amount").text().trim() || "Prix non disponible";
+    const reviews =
+      $("span.review-score").text().trim() || "Avis non disponible";
 
     // Extraire la description complète
-    const jsonDescription = hotelData.description || '';
+    const jsonDescription = hotelData.description || "";
     const additionalDescription = $('p[data-testid="property-description"]')
       .map((_, element) => $(element).text().trim())
       .get()
-      .join(' ');
+      .join(" ");
 
     // Fusionner les descriptions
     const description = `${jsonDescription} ${additionalDescription}`.trim();
@@ -44,15 +48,19 @@ async function extractAllHotelData(): Promise<void> {
       price,
       reviews,
       description,
-      url: hotelData.url || 'URL non disponible',
+      url: hotelData.url || "URL non disponible",
     };
 
     // Afficher et sauvegarder les données
-    console.log('Données extraites :', extractedData);
-    fs.writeFileSync('./extracted_data.json', JSON.stringify(extractedData, null, 2), 'utf-8');
-    console.log('Données sauvegardées dans extracted_data.json');
+    console.log("Données extraites :", extractedData);
+    fs.writeFileSync(
+      "./extracted_data.json",
+      JSON.stringify(extractedData, null, 2),
+      "utf-8",
+    );
+    console.log("Données sauvegardées dans extracted_data.json");
   } catch (error) {
-    console.error('Erreur lors de l’extraction des données :', error.message);
+    console.error("Erreur lors de l’extraction des données :", error.message);
   }
 }
 

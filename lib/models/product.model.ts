@@ -1,20 +1,20 @@
-import mongoose from 'mongoose'; 
-import { extractDescription } from '../utils';
+import mongoose from "mongoose";
+import { extractDescription } from "../utils";
 
-
-const productSchema = new mongoose.Schema({
-    url: {type: String, required: true, unique: true},
-    currency: {type: String, required: true},
+const productSchema = new mongoose.Schema(
+  {
+    url: { type: String, required: true, unique: true },
+    currency: { type: String, required: true },
     price: { type: Number, required: true },
     image: [{ type: String, required: true }],
     title: { type: String, required: true },
     currentPrice: { type: Number, required: true },
     orignalePrice: { type: Number, required: true },
     priceHistory: [
-    {
+      {
         price: { type: Number, required: true },
-        date: { type: Date, default: Date.now }
-    },
+        date: { type: Date, default: Date.now },
+      },
     ],
 
     lowestPrice: { type: Number },
@@ -24,17 +24,14 @@ const productSchema = new mongoose.Schema({
     description: { type: String },
     category: { type: String },
     reviewsCount: { type: Number },
-    isOutOfStock: { type: Boolean, default: false },    
-    users: [
-        {email: { type: String, required: true }}], 
-        default: [],
+    isOutOfStock: { type: Boolean, default: false },
+    users: [{ email: { type: String, required: true } }],
+    default: [],
+  },
+  { timestamps: true },
+);
 
+const Product =
+  mongoose.models.Product || mongoose.model("Product", productSchema);
 
-    }, { timestamps: true });
-
-
-    const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
-
-    export default Product;
-
-
+export default Product;

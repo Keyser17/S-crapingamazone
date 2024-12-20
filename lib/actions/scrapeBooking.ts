@@ -10,8 +10,8 @@ export async function scrapeBookingProduct(url: string) {
     const currentPrice = $('span[data-testid="price"]').text().trim();
     const images: string[] = [];
 
-    $('img').each((_, element) => {
-      const src = $(element).attr('src');
+    $("img").each((_, element) => {
+      const src = $(element).attr("src");
       if (src) images.push(src);
     });
 
@@ -24,7 +24,7 @@ export async function scrapeBookingProduct(url: string) {
       url,
     };
   } catch (error) {
-    console.error('Error scraping Booking.com:', error);
+    console.error("Error scraping Booking.com:", error);
     return null;
   }
 }

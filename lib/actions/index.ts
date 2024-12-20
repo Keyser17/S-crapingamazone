@@ -1,6 +1,6 @@
-"use server"
+"use server";
 
-import { revalidatePath } from "next/cache"; // new import for revalidation 
+import { revalidatePath } from "next/cache"; // new import for revalidation
 import Product from "../models/product.model";
 import { connectToDB } from "../mongoose";
 import { scrapeAmazonProduct } from "../scraper/scraperAmazon";
@@ -10,7 +10,7 @@ import { User } from "@/types";
 // import { generateEmailBody, sendEmail } from "../nodemailer";
 
 export async function scrapeAndStoreProduct(productUrl: string) {
-  if(!productUrl) return;
+  if (!productUrl) return;
 
   try {
     connectToDB();
@@ -19,28 +19,28 @@ export async function scrapeAndStoreProduct(productUrl: string) {
 
     console.log("Received URL:", productUrl);
 
-
     // Détecter l'origine de l'URL et appeler la fonction appropriée
-    if (productUrl.includes('amazon.fr')) {
+    if (productUrl.includes("amazon.fr")) {
       scrapedProduct = await scrapeAmazonProduct(productUrl);
-    } else if (productUrl.includes('booking.com')) {
+    } else if (productUrl.includes("booking.com")) {
       scrapedProduct = await scrapeBookingProduct(productUrl);
     } else {
-      throw new Error('Unsupported URL. Only Amazon and Booking.com are supported.');
+      throw new Error(
+        "Unsupported URL. Only Amazon and Booking.com are supported.",
+      );
     }
 
-
-    if(!scrapedProduct) return;
+    if (!scrapedProduct) return;
 
     let product = scrapedProduct;
 
     const existingProduct = await Product.findOne({ url: scrapedProduct.url });
 
-    if(existingProduct) {
-        const updatedPriceHistory: any = [
-         ...existingProduct.priceHistory,
-         { price: scrapedProduct.currentPrice }
-       ]
+    if (existingProduct) {
+      const updatedPriceHistory: any = [
+        ...existingProduct.priceHistory,
+        { price: scrapedProduct.currentPrice },
+      ];
 
       product = {
         ...scrapedProduct,
@@ -48,18 +48,18 @@ export async function scrapeAndStoreProduct(productUrl: string) {
         lowestPrice: getLowestPrice(updatedPriceHistory),
         highestPrice: getHighestPrice(updatedPriceHistory),
         averagePrice: getAveragePrice(updatedPriceHistory),
-      }
+      };
     }
 
     const newProduct = await Product.findOneAndUpdate(
       { url: scrapedProduct.url },
       product,
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
 
     revalidatePath(`/products/${newProduct._id}`);
   } catch (error: any) {
-    throw new Error(`Failed to create/update product: ${error.message}`)
+    throw new Error(`Failed to create/update product: ${error.message}`);
   }
 }
 
@@ -69,7 +69,7 @@ export async function getProductById(productId: string) {
 
     const product = await Product.findOne({ _id: productId });
 
-    if(!product) return null;
+    if (!product) return null;
 
     return product;
   } catch (error) {
@@ -95,7 +95,7 @@ export async function getSimilarProducts(productId: string) {
 
     const currentProduct = await Product.findById(productId);
 
-    if(!currentProduct) return null;
+    if (!currentProduct) return null;
 
     const similarProducts = await Product.find({
       _id: { $ne: productId },
@@ -107,15 +107,20 @@ export async function getSimilarProducts(productId: string) {
   }
 }
 
-export async function addUserEmailToProduct(productId: string, userEmail: string) {
+export async function addUserEmailToProduct(
+  productId: string,
+  userEmail: string,
+) {
   try {
     const product = await Product.findById(productId);
 
-    if(!product) return;
+    if (!product) return;
 
-    const userExists = product.users.some((user: User) => user.email === userEmail);
+    const userExists = product.users.some(
+      (user: User) => user.email === userEmail,
+    );
 
-    if(!userExists) {
+    if (!userExists) {
       product.users.push({ email: userEmail });
 
       await product.save();
